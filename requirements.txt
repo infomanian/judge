@@ -5,3 +5,4 @@ python-multipart==0.0.9
 aiofiles==23.2.1
 anthropic==0.34.0
 starlette==0.37.2
+itsdangerous
