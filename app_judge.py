@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from anthropic import Anthropic
+from fastapi.responses import RedirectResponse
 
 APP_TITLE = "دادگاه شبیه‌سازی‌شده (قاضی هوشمند)"
 APP_DESC = "وب‌اپ برای شبیه‌سازی دادرسی بین شاکی، متشاکی و قاضی (Claude)"
@@ -22,6 +23,9 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
 client = Anthropic(api_key=ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else None
 
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse(url="/court")
 
 @app.get("/court", response_class=HTMLResponse)
 async def court_index(request: Request):
