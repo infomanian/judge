@@ -85,7 +85,18 @@ async def court_step(request: Request,
 """
 
     # ترکیب تاریخچه به مدل
-    all_messages = [{"role": "system", "content": [{"type": "text", "text": judge_prompt}]}]
+    # پیام‌ها فقط user/assistant باشند
+    all_messages = []
+
+    # system prompt به صورت جداگانه به مدل داده می‌شود
+    resp = client.messages.create(
+        model=ANTHROPIC_MODEL,
+        max_tokens=1000,
+        system=judge_prompt,
+        messages=all_messages
+    )
+
+
     for h in history:
         role_map = "user"
         prefix = "شاکی" if h["role"] == "plaintiff" else "متشاکی"

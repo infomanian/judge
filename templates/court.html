@@ -8,7 +8,7 @@
 <body>
     <h1>{{ title }}</h1>
 
-    <div class="chat-box">
+    <div class="msg">
         {% for h in history %}
             <div class="msg {{ h.role }}">
                 <strong>{{ "شاکی" if h.role=="plaintiff" else ("متشاکی" if h.role=="defendant" else "قاضی") }}:</strong>
@@ -31,7 +31,7 @@
             <option value="defendant">متشاکی</option>
         </select><br><br>
 
-        <textarea name="message" placeholder="متن خود را وارد کنید..."></textarea><br><br>
+        <textarea class chat-box name="message" placeholder="متن خود را وارد کنید..."></textarea><br><br>
         <input type="file" name="attachments" multiple><br><br>
         <button type="submit">ارسال به دادگاه</button>
     </form>
