@@ -98,7 +98,7 @@ async def court_step(request: Request,
     # پاسخ قاضی
     resp = client.messages.create(
         model=ANTHROPIC_MODEL,
-        max_tokens=1000,
+        max_tokens=10000,
         messages=all_messages
     )
     judge_text = resp.content[0].text if hasattr(resp, "content") else str(resp)
