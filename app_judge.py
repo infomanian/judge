@@ -14,8 +14,8 @@ APP_DESC = "وب‌اپ برای شبیه‌سازی دادرسی بین شاک�
 APP_VERSION = "0.2.0"
 
 # تنظیمات chunking
-CHUNK_SIZE = 4000  # تقریباً کاراکتر؛ می‌تونید کمتر/بیشتر کنید
-CHUNK_SUMMARY_MAX_TOKENS = 600
+CHUNK_SIZE = 1000  # تقریباً کاراکتر؛ می‌تونید کمتر/بیشتر کنید
+CHUNK_SUMMARY_MAX_TOKENS = 300
 FINAL_MAX_TOKENS = 2500
 
 app = FastAPI(title=APP_TITLE, description=APP_DESC, version=APP_VERSION)
