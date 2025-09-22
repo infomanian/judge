@@ -34,8 +34,10 @@ def build_prompt(role, text, files):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    if "conversation_history" not in session:
+    # پاک کردن تاریخچه اگر کاربر کیس جدید میخواد
+    if request.method == "GET" and request.args.get("new_case") == "1":
         session["conversation_history"] = []
+
 
     if request.method == "POST":
         role = request.form.get("role")
@@ -56,11 +58,12 @@ def index():
         response_text = resp.content[0].text
         # ذخیره پاسخ قاضی
         session["conversation_history"].append({"role": "قاضی", "text": response_text})
-        return render_template(
-            "index.html",
-            conversation=response_text,
-            history=session.get("conversation_history", [])
-        )
+
+    return render_template(
+        "index.html",
+        conversation=response_text,
+        history=session.get("conversation_history", [])
+    )
 
 
 if __name__ == "__main__":
