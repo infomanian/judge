@@ -2,9 +2,11 @@ import os
 import base64
 from flask import Flask, render_template, request
 from anthropic import Anthropic
+from flask import Flask, render_template, request, session
 
 app = Flask(__name__)
 
+app.secret_key = os.getenv("SESSION_SECRET", "amir")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 # ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-1-20250805") 
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
@@ -31,25 +33,37 @@ def build_prompt(role, text, files):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    global conversation_history
+    if "conversation_history" not in session:
+        session["conversation_history"] = []
+
     response_text = None
-    if request.method == "GET":
-        conversation_history = []
+
+    # پاک کردن تاریخچه وقتی کاربر کیس جدید میخواد
+    if request.method == "GET" and request.args.get("new_case") == "1":
+        session["conversation_history"] = []
+
     if request.method == "POST":
         role = request.form.get("role")
         text = request.form.get("text")
         files = request.files.getlist("files")
         user_input = build_prompt(role, text, files)
-        conversation_history.append(user_input)
-        prompt = "\n\n".join(conversation_history)
+
+        session["conversation_history"].append(user_input)
+        prompt = "\n\n".join(session["conversation_history"])
         resp = client.messages.create(
             model=ANTHROPIC_MODEL,
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )
         response_text = resp.content[0].text
-        conversation_history.append(f"🤖 قاضی: {response_text}")
-    return render_template("index.html", conversation=response_text, history=conversation_history)
+        session["conversation_history"].append(f"🤖 قاضی: {response_text}")
+
+    return render_template(
+        "index.html",
+        conversation=response_text,
+        history=session.get("conversation_history", [])
+    )
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
