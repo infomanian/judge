@@ -6,7 +6,9 @@ from anthropic import Anthropic
 app = Flask(__name__)
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-MODEL = "claude-3-sonnet-20240229"
+# ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-1-20250805") 
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
+
 client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 conversation_history = []
