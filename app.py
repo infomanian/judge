@@ -56,11 +56,11 @@ def index():
         response_text = resp.content[0].text
         # ذخیره پاسخ قاضی
         session["conversation_history"].append({"role": "قاضی", "text": response_text})
-    return render_template(
-        "index.html",
-        conversation=response_text,
-        history=session.get("conversation_history", [])
-    )
+        return render_template(
+            "index.html",
+            conversation=response_text,
+            history=session.get("conversation_history", [])
+        )
 
 
 if __name__ == "__main__":
