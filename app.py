@@ -41,7 +41,7 @@ def index():
         conversation_history.append(user_input)
         prompt = "\n\n".join(conversation_history)
         resp = client.messages.create(
-            model=MODEL,
+            model=ANTHROPIC_MODEL,
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )
