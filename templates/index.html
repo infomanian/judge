@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم دادگاه مجازی</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Vazir:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🏛️ سیستم دادگاه مجازی</h1>
+            <p>سیستم بررسی پرونده با هوش مصنوعی</p>
+        </header>
+
+        <!-- Initial Form Section -->
+        <div id="initialForm" class="form-section">
+            <div class="case-info">
+                <h2>📋 اطلاعات پرونده</h2>
+                
+                <div class="party-section">
+                    <h3>👤 اطلاعات شاکی</h3>
+                    <textarea id="plaintiffInfo" placeholder="نام، آدرس، و توضیحات کامل شاکی را وارد کنید..."></textarea>
+                    <textarea id="plaintiffDocs" placeholder="مدارک و مستندات شاکی را شرح دهید..."></textarea>
+                </div>
+
+                <div class="party-section">
+                    <h3>👤 اطلاعات متشاکی (مدعی علیه)</h3>
+                    <textarea id="defendantInfo" placeholder="نام، آدرس، و توضیحات کامل متشاکی را وارد کنید..."></textarea>
+                    <textarea id="defendantDocs" placeholder="مدارک و مستندات متشاکی را شرح دهید..."></textarea>
+                </div>
+
+                <button onclick="submitInitialInfo()" class="submit-btn">
+                    📤 ارسال اطلاعات به قاضی
+                </button>
+            </div>
+        </div>
+
+        <!-- Judge Response Section -->
+        <div id="judgeSection" class="judge-section" style="display: none;">
+            <div class="judge-response">
+                <h3>⚖️ نظر قاضی</h3>
+                <div id="judgeResponse" class="response-text"></div>
+            </div>
+        </div>
+
+        <!-- Follow-up Form Section -->
+        <div id="followupForm" class="form-section" style="display: none;">
+            <div class="followup-info">
+                <h3>📝 ارائه اطلاعات تکمیلی</h3>
+                <div class="party-selector">
+                    <label>
+                        <input type="radio" name="party" value="plaintiff" checked>
+                        شاکی
+                    </label>
+                    <label>
+                        <input type="radio" name="party" value="defendant">
+                        متشاکی
+                    </label>
+                </div>
+                <textarea id="followupResponse" placeholder="پاسخ یا اطلاعات تکمیلی خود را وارد کنید..."></textarea>
+                <button onclick="submitFollowup()" class="submit-btn">
+                    📤 ارسال پاسخ
+                </button>
+            </div>
+        </div>
+
+        <!-- Conversation History -->
+        <div id="conversationHistory" class="conversation-section" style="display: none;">
+            <h3>📚 تاریخچه پرونده</h3>
+            <div id="historyContent"></div>
+        </div>
+
+        <!-- Final Verdict Section -->
+        <div id="verdictSection" class="verdict-section" style="display: none;">
+            <h2>⚖️ رای نهایی دادگاه</h2>
+            <div id="finalVerdict" class="final-verdict"></div>
+            <button onclick="resetCase()" class="reset-btn">
+                🔄 شروع پرونده جدید
+            </button>
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>در حال پردازش توسط قاضی...</p>
+        </div>
+    </div>
+
+    <script>
+        let caseStatus = 'initial';
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showSection(sectionId) {
+            const sections = ['initialForm', 'judgeSection', 'followupForm', 'conversationHistory', 'verdictSection'];
+            sections.forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        async function submitInitialInfo() {
+            const plaintiffInfo = document.getElementById('plaintiffInfo').value;
+            const plaintiffDocs = document.getElementById('plaintiffDocs').value;
+            const defendantInfo = document.getElementById('defendantInfo').value;
+            const defendantDocs = document.getElementById('defendantDocs').value;
+
+            if (!plaintiffInfo || !defendantInfo) {
+                alert('لطفاً حداقل اطلاعات شاکی و متشاکی را وارد کنید.');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('/submit_initial', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        plaintiff_info: plaintiffInfo,
+                        plaintiff_documents: plaintiffDocs,
+                        defendant_info: defendantInfo,
+                        defendant_documents: defendantDocs
+                    })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success) {
+                    document.getElementById('judgeResponse').innerHTML = formatText(data.judge_response);
+                    showSection('judgeSection');
+                    
+                    if (data.status === 'completed') {
+                        setTimeout(() => {
+                            document.getElementById('finalVerdict').innerHTML = formatText(data.judge_response);
+                            showSection('verdictSection');
+                        }, 3000);
+                    } else {
+                        setTimeout(() => {
+                            document.getElementById('followupForm').style.display = 'block';
+                            document.getElementById('conversationHistory').style.display = 'block';
+                            updateConversationHistory();
+                        }, 2000);
+                    }
+                    
+                    caseStatus = data.status;
+                } else {
+                    alert('خطا در ارسال اطلاعات: ' + data.error);
+                }
+            } catch (error) {
+                hideLoading();
+                alert('خطا در ارتباط با سرور: ' + error.message);
+            }
+        }
+
+        async function submitFollowup() {
+            const party = document.querySelector('input[name="party"]:checked').value;
+            const response = document.getElementById('followupResponse').value;
+
+            if (!response.trim()) {
+                alert('لطفاً پاسخ خود را وارد کنید.');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const apiResponse = await fetch('/submit_followup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        party: party,
+                        response: response
+                    })
+                });
+
+                const data = await apiResponse.json();
+                hideLoading();
+
+                if (data.success) {
+                    document.getElementById('judgeResponse').innerHTML = formatText(data.judge_response);
+                    document.getElementById('followupResponse').value = '';
+                    
+                    updateConversationHistory();
+
+                    if (data.status === 'completed') {
+                        setTimeout(() => {
+                            document.getElementById('finalVerdict').innerHTML = formatText(data.judge_response);
+                            showSection('verdictSection');
+                        }, 3000);
+                    }
+                    
+                    caseStatus = data.status;
+                } else {
+                    alert('خطا در ارسال پاسخ: ' + data.error);
+                }
+            } catch (error) {
+                hideLoading();
+                alert('خطا در ارتباط با سرور: ' + error.message);
+            }
+        }
+
+        async function updateConversationHistory() {
+            try {
+                const response = await fetch('/get_case_status');
+                const data = await response.json();
+                
+                const historyDiv = document.getElementById('historyContent');
+                historyDiv.innerHTML = '';
+                
+                data.conversation_history.forEach(msg => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message ${msg.role}`;
+                    
+                    const roleText = msg.role === 'judge' ? '⚖️ قاضی' : 
+                                   msg.role === 'plaintiff' ? '👤 شاکی' : '👤 متشاکی';
+                    
+                    messageDiv.innerHTML = `
+                        <div class="message-header">${roleText}</div>
+                        <div class="message-content">${formatText(msg.content)}</div>
+                    `;
+                    
+                    historyDiv.appendChild(messageDiv);
+                });
+                
+                historyDiv.scrollTop = historyDiv.scrollHeight;
+            } catch (error) {
+                console.error('Error updating history:', error);
+            }
+        }
+
+        async function resetCase() {
+            try {
+                await fetch('/reset_case', { method: 'POST' });
+                location.reload();
+            } catch (error) {
+                alert('خطا در ریست کردن پرونده: ' + error.message);
+            }
+        }
+
+        function formatText(text) {
+            return text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('initialForm');
+        });
+    </script>
+</body>
+</html>
