@@ -1,0 +1,128 @@
+<!-- templates/index.html -->
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{ app_title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>{{ app_title }}</h1>
+    </header>
+
+    {% if page == "home" %}
+      <section class="card">
+        <h2>پرونده جدید — (مرحلهٔ قاضی)</h2>
+        <form action="{{ url_for('create') }}" method="post" class="form">
+          <label>عنوان پرونده (اختیاری)
+            <input type="text" name="title" placeholder="مثلاً اختلاف قراردادی" />
+          </label>
+          <label>یادداشت‌های قاضی (اختیاری)
+            <textarea name="judge_notes" rows="3" placeholder="توضیحات یا سوالاتی که قاضی برای شروع دارد..."></textarea>
+          </label>
+
+          <fieldset>
+            <legend>اطلاعات اولیه خواهان</legend>
+            <label>نام خواهان
+              <input type="text" name="plaintiff_name" />
+            </label>
+            <label>توضیح اولیه خواهان
+              <textarea name="plaintiff_initial" rows="3"></textarea>
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>اطلاعات اولیه خوانده</legend>
+            <label>نام خوانده
+              <input type="text" name="defendant_name" />
+            </label>
+            <label>توضیح اولیه خوانده
+              <textarea name="defendant_initial" rows="3"></textarea>
+            </label>
+          </fieldset>
+
+          <div class="actions"><button type="submit">ایجاد پرونده</button></div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>پرونده‌های جاری</h2>
+        {% if cases %}
+          <ul>
+            {% for c in cases %}
+              <li>
+                <a href="{{ url_for('view_case', case_id=c.id) }}">{{ c.title }} — وضعیت: {{ c.status }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>هنوز پرونده‌ای وجود ندارد.</p>
+        {% endif %}
+      </section>
+    {% elif page == "case" %}
+      <section class="card">
+        <h2>پرونده: {{ case.title }}</h2>
+        <p><b>وضعیت:</b> {{ case.status }}</p>
+        {% if case.verdict %}
+          <div class="card small">
+            <h3>رأی صادره</h3>
+            <pre class="mono">{{ case.verdict }}</pre>
+          </div>
+        {% endif %}
+        <h3>گفتگو و مدارک</h3>
+        <div class="conversation card">
+          {% for msg in case.conversation %}
+            <div class="msg {{ msg.from }}">
+              <b>{{ 'قاضی' if msg.from=='judge' else (case.plaintiff.name if msg.from=='plaintiff' else case.defendant.name) }}:</b>
+              <div class="text">{{ msg.text }}</div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="card">
+          <h3>اقدامات قاضی</h3>
+          <form action="{{ url_for('request_info', case_id=case.id) }}" method="post">
+            <label>درخواست اطلاعات از:
+              <select name="who">
+                <option value="plaintiff">خواهان</option>
+                <option value="defendant">خوانده</option>
+              </select>
+            </label>
+            <label>متن درخواست (مثلاً: مدارک پرداخت، تاریخچه قرارداد...):
+              <textarea name="note" rows="3"></textarea>
+            </label>
+            <div class="actions"><button type="submit">درخواست اطلاعات</button></div>
+          </form>
+
+          {% if case.awaiting %}
+            <p class="muted">در انتظار پاسخ از: <b>{{ 'خواهان' if case.awaiting=='plaintiff' else 'خوانده' }}</b></p>
+          {% endif %}
+
+          <form action="{{ url_for('issue_verdict', case_id=case.id) }}" method="post" onsubmit="return confirm('آیا مطمئن هستید می‌خواهید رأی صادر شود؟ این کار پرونده را می‌بندد.');">
+            <div class="actions"><button type="submit" class="danger">صدور رأی و بستن پرونده</button></div>
+          </form>
+        </div>
+      </section>
+
+    {% elif page == "respond" %}
+      <section class="card">
+        <h2>پاسخ‌دهی — {{ 'خواهان' if party=='plaintiff' else 'خوانده' }}</h2>
+        {% if error %}<p class="error">{{ error }}</p>{% endif %}
+        <form action="{{ url_for('respond', case_id=case.id, party=party) }}" method="post">
+          <label>متن پاسخ:
+            <textarea name="response_text" rows="6" required></textarea>
+          </label>
+          <div class="actions"><button type="submit">ارسال پاسخ</button></div>
+        </form>
+      </section>
+    {% endif %}
+
+    <footer class="footer">
+      <small>این سامانه شبیه‌سازی‌ست و برای مصارف آموزشی طراحی شده است. رأی‌های تولیدشده باید توسط افراد حقیقی بازبینی شوند.</small>
+    </footer>
+  </main>
+</body>
+</html>

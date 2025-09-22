@@ -1,0 +1,30 @@
+/* static/styles.css - RTL minimal */
+:root {
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --text: #0b1220;
+  --muted: #64748b;
+  --accent: #06b6d4;
+  --danger: #ef4444;
+  --border: #e6eef6;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family: "Vazirmatn","Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+.container{max-width:980px;margin:28px auto;padding:16px}
+header h1{margin:0 0 12px;font-size:22px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:12px 0;box-shadow:0 6px 18px rgba(2,6,23,0.02)}
+.form label{display:block;margin:8px 0}
+input[type="text"], textarea, select{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:#fff}
+.actions{margin-top:12px}
+button{background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;border:none;cursor:pointer}
+button.danger{background:var(--danger)}
+.muted{color:var(--muted)}
+.conversation{max-height:360px;overflow:auto;padding:8px}
+.msg{margin:8px 0;padding:8px;border-radius:8px}
+.msg.plaintiff{background:#eef9f8;border-left:4px solid #06b6d4}
+.msg.defendant{background:#fff7ed;border-left:4px solid #f59e0b}
+.msg.judge{background:#eef2ff;border-left:4px solid #6366f1}
+.text{white-space:pre-wrap;margin-top:6px}
+.footer{color:var(--muted);margin-top:12px;font-size:13px}
+.small{font-size:13px}
+.error{color:var(--danger);font-weight:600}
