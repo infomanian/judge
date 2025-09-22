@@ -37,28 +37,25 @@ def index():
     if "conversation_history" not in session:
         session["conversation_history"] = []
 
-    response_text = None
-
-    # پاک کردن تاریخچه وقتی کاربر کیس جدید میخواد
-    if request.method == "GET" and request.args.get("new_case") == "1":
-        session["conversation_history"] = []
-
     if request.method == "POST":
         role = request.form.get("role")
         text = request.form.get("text")
         files = request.files.getlist("files")
         user_input = build_prompt(role, text, files)
 
-        session["conversation_history"].append(user_input)
-        prompt = "\n\n".join(session["conversation_history"])
+        # ذخیره پیام به صورت دیکشنری
+        session["conversation_history"].append({"role": role, "text": user_input})
+
+        # ساخت prompt برای مدل
+        prompt = "\n\n".join([f"{msg['role']}: {msg['text']}" for msg in session["conversation_history"]])
         resp = client.messages.create(
             model=ANTHROPIC_MODEL,
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )
         response_text = resp.content[0].text
-        session["conversation_history"].append(f"🤖 قاضی: {response_text}")
-
+        # ذخیره پاسخ قاضی
+        session["conversation_history"].append({"role": "قاضی", "text": response_text})
     return render_template(
         "index.html",
         conversation=response_text,
