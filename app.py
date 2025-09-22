@@ -31,29 +31,6 @@ def build_prompt(role, text, files):
                     file_descriptions.append(f"[فایل باینری {f.filename}]")
     return f"👤 {role}: {text}\nمدارک: {'; '.join(file_descriptions) if file_descriptions else 'بدون مدرک'}"
 
-if "conversation_history" not in session:
-    session["conversation_history"] = []
-
-if request.method == "POST":
-    role = request.form.get("role")
-    text = request.form.get("text")
-    files = request.files.getlist("files")
-    user_input = build_prompt(role, text, files)
-
-    # ذخیره پیام به صورت دیکشنری
-    session["conversation_history"].append({"role": role, "text": user_input})
-
-    # ساخت prompt برای مدل
-    prompt = "\n\n".join([f"{msg['role']}: {msg['text']}" for msg in session["conversation_history"]])
-    resp = client.messages.create(
-        model=ANTHROPIC_MODEL,
-        max_tokens=800,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    response_text = resp.content[0].text
-    # ذخیره پاسخ قاضی
-    session["conversation_history"].append({"role": "قاضی", "text": response_text})
-
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -91,3 +68,27 @@ def index():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+
+'''
+if "conversation_history" not in session:
+    session["conversation_history"] = []
+
+if request.method == "POST":
+    role = request.form.get("role")
+    text = request.form.get("text")
+    files = request.files.getlist("files")
+    user_input = build_prompt(role, text, files)
+
+    # ذخیره پیام به صورت دیکشنری
+    session["conversation_history"].append({"role": role, "text": user_input})
+
+    # ساخت prompt برای مدل
+    prompt = "\n\n".join([f"{msg['role']}: {msg['text']}" for msg in session["conversation_history"]])
+    resp = client.messages.create(
+        model=ANTHROPIC_MODEL,
+        max_tokens=800,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    response_text = resp.content[0].text
+    # ذخیره پاسخ قاضی
+    session["conversation_history"].append({"role": "قاضی", "text": response_text})'''
