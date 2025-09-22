@@ -37,8 +37,7 @@ def index():
     # پاک کردن تاریخچه اگر کاربر کیس جدید میخواد
     if request.method == "GET" and request.args.get("new_case") == "1":
         session["conversation_history"] = []
-
-
+    response_text = ""
     if request.method == "POST":
         role = request.form.get("role")
         text = request.form.get("text")
