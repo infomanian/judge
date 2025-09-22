@@ -49,3 +49,18 @@ button:hover {
   background: #f0f0f0;
   border-radius: 8px;
 }
+
+.btn-back {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #0077cc;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.btn-back:hover {
+  background-color: #005fa3;
+}
