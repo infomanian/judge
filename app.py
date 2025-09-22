@@ -33,6 +33,8 @@ def build_prompt(role, text, files):
 def index():
     global conversation_history
     response_text = None
+    if request.method == "GET":
+        conversation_history = []
     if request.method == "POST":
         role = request.form.get("role")
         text = request.form.get("text")
