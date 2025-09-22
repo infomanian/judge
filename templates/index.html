@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="fa">
+
 <head>
   <meta charset="UTF-8">
   <title>شبیه‌ساز قاضی</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
   <div class="container">
     <h1>⚖️ شبیه‌ساز قاضی</h1>
@@ -25,22 +27,31 @@
     </form>
 
     {% if conversation %}
-      <div class="response">
-        <h2>📜 نتیجه قاضی:</h2>
-        <p>{{ conversation }}</p>
-      </div>
+    <div class="response">
+      <h2>📜 نتیجه قاضی:</h2>
+      <p>{{ conversation }}</p>
+    </div>
     {% endif %}
 
     {% if history %}
-      <div class="history">
-        <h2>🗂 تاریخچه گفتگو</h2>
-        <ul>
-          {% for msg in history %}
-            <li>{{ msg }}</li>
-          {% endfor %}
-        </ul>
-      </div>
+    <div class="history">
+      <h2>🗂 تاریخچه گفتگو</h2>
+      <ul>
+        {% for msg in history %}
+        <li>{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    </div>
     {% endif %}
   </div>
+
+  {% if result %}
+  <div style="margin-top: 20px; text-align: center;">
+    <a href="/" class="btn-back">🔄 شروع پرونده جدید</a>
+  </div>
+  {% endif %}
+
+
 </body>
+
 </html>
