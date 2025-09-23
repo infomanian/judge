@@ -50,7 +50,7 @@ def index():
 
         session["conversation_history"].append(f"{role}: {text}")
 
-        prompt = user_input.join(session["conversation_history"])
+        prompt = "\n\n".join(session["conversation_history"])
         resp = client.messages.create(
             model=ANTHROPIC_MODEL,
             max_tokens=800,
