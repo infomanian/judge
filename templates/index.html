@@ -10,6 +10,7 @@
 <body>
   <div class="container">
     <h1>⚖️ شبیه‌ساز قاضی</h1>
+
     <form method="POST" enctype="multipart/form-data">
       <label for="role">نقش خود را انتخاب کنید:</label>
       <select name="role" required>
@@ -27,42 +28,37 @@
     </form>
 
     {% if conversation %}
-    <div class="response">
-      <h2>📜 نظر قاضی:</h2>
+    <div class="response judge-box">
+      <h2>📜 نتیجه قاضی:</h2>
       <p>{{ conversation }}</p>
     </div>
     {% endif %}
 
+    {% if history %}
     <div class="history-grid">
-      <div class="history-box claimant">
+      <!-- بخش شاکی -->
+      <div class="party-column">
         <h2>👤 شاکی</h2>
-        {% if claimant_history %}
-          {% for msg in claimant_history %}
-            <div class="msg-box">{{ msg }}</div>
-          {% endfor %}
-        {% else %}
-          <p>هنوز توضیحی وارد نشده</p>
-        {% endif %}
+        {% for msg in history if msg.startswith("شاکی") %}
+        <div class="msg-box claimant">{{ msg }}</div>
+        {% endfor %}
       </div>
 
-      <div class="history-box defendant">
+      <!-- بخش متشاکی -->
+      <div class="party-column">
         <h2>👤 متشاکی</h2>
-        {% if defendant_history %}
-          {% for msg in defendant_history %}
-            <div class="msg-box">{{ msg }}</div>
-          {% endfor %}
-        {% else %}
-          <p>هنوز توضیحی وارد نشده</p>
-        {% endif %}
+        {% for msg in history if msg.startswith("متشاکی") %}
+        <div class="msg-box defendant">{{ msg }}</div>
+        {% endfor %}
       </div>
     </div>
+    {% endif %}
 
-    {% if conversation %}
+    {% if history %}
     <div style="margin-top: 20px; text-align: center;">
-      <a href="/" class="btn-back">🔄 شروع پرونده جدید</a>
+      <a href="/?new_case=1" class="btn-back">🔄 شروع پرونده جدید</a>
     </div>
     {% endif %}
   </div>
 </body>
-
 </html>
