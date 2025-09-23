@@ -1,30 +1,90 @@
-/* static/styles.css - RTL minimal */
-:root {
-  --bg: #f5f7fb;
-  --card: #ffffff;
-  --text: #0b1220;
-  --muted: #64748b;
-  --accent: #06b6d4;
-  --danger: #ef4444;
-  --border: #e6eef6;
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  direction: rtl;
 }
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family: "Vazirmatn","Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
-.container{max-width:980px;margin:28px auto;padding:16px}
-header h1{margin:0 0 12px;font-size:22px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:12px 0;box-shadow:0 6px 18px rgba(2,6,23,0.02)}
-.form label{display:block;margin:8px 0}
-input[type="text"], textarea, select{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:#fff}
-.actions{margin-top:12px}
-button{background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;border:none;cursor:pointer}
-button.danger{background:var(--danger)}
-.muted{color:var(--muted)}
-.conversation{max-height:360px;overflow:auto;padding:8px}
-.msg{margin:8px 0;padding:8px;border-radius:8px}
-.msg.plaintiff{background:#eef9f8;border-left:4px solid #06b6d4}
-.msg.defendant{background:#fff7ed;border-left:4px solid #f59e0b}
-.msg.judge{background:#eef2ff;border-left:4px solid #6366f1}
-.text{white-space:pre-wrap;margin-top:6px}
-.footer{color:var(--muted);margin-top:12px;font-size:13px}
-.small{font-size:13px}
-.error{color:var(--danger);font-weight:600}
+
+form {
+  margin-bottom: 20px;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+textarea, select, input, button {
+  width: 100%;
+  margin: 8px 0;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+button {
+  background: #0077cc;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #005fa3;
+}
+
+.response.judge-box {
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.history-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.party-column {
+  background: #f1f1f1;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.party-column h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.msg-box {
+  background: #fff;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.msg-box.claimant {
+  border-right: 4px solid #0077cc;
+}
+
+.msg-box.defendant {
+  border-right: 4px solid #cc0000;
+}
+
+.btn-back {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #0077cc;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.btn-back:hover {
+  background-color: #005fa3;
+}

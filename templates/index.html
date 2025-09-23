@@ -1,51 +1,115 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>شبیه‌ساز قاضی</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سامانه قاضی هوشمند</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
   <div class="container">
-    <h1>⚖️ شبیه‌ساز قاضی</h1>
-    <form method="POST" enctype="multipart/form-data">
-      <label for="role">نقش خود را انتخاب کنید:</label>
-      <select name="role" required>
-        <option value="شاکی">شاکی</option>
-        <option value="متشاکی">متشاکی</option>
-      </select>
+    <header>
+      <h1>سامانه قاضی هوشمند</h1>
+      <p class="subtitle">گردآوری و تبادل اطلاعات بین شاکی و متشاکی تا صدور رای</p>
+    </header>
 
-      <label for="text">توضیحات:</label>
-      <textarea name="text" rows="4" required></textarea>
+    <section class="judge-section">
+      <h2>نتیجه قاضی</h2>
+      {% if case.verdict %}
+        <div class="judge-box verdict">
+          <div class="label">رای نهایی:</div>
+          <div class="content">{{ case.verdict }}</div>
+        </div>
+      {% elif last_request %}
+        <div class="judge-box request">
+          <div class="label">درخواست از {{ 'شاکی' if last_request.target=='plaintiff' else 'متشاکی' }}:</div>
+          <div class="content">{{ last_request.message }}</div>
+        </div>
+      {% else %}
+        <div class="judge-box neutral">
+          <div class="content">برای دریافت نتیجه اولیه، از دکمه «ارزیابی قاضی» استفاده کنید.</div>
+        </div>
+      {% endif %}
 
-      <label for="files">آپلود مدارک (اختیاری):</label>
-      <input type="file" name="files" multiple>
+      <form class="judge-actions" method="post" action="{{ url_for('judge_evaluate') }}">
+        <button type="submit" class="btn primary">ارزیابی قاضی</button>
+      </form>
+      <form class="judge-actions" method="post" action="{{ url_for('judge_reset') }}">
+        <button type="submit" class="btn subtle" title="شروع پرونده جدید">شروع پرونده جدید</button>
+      </form>
+    </section>
 
-      <button type="submit">ارسال</button>
-    </form>
+    <section class="inputs-section">
+      <div class="columns two">
+        <div class="col card">
+          <h3>ورودی شاکی</h3>
+          <form method="post" action="{{ url_for('submit_plaintiff') }}" class="stack">
+            <label for="plaintiff_text">توضیحات</label>
+            <textarea id="plaintiff_text" name="plaintiff_text" rows="4" placeholder="شرح ادعا یا توضیحات تکمیلی"></textarea>
 
-    {% if conversation %}
-      <div class="response">
-        <h2>📜 نتیجه قاضی:</h2>
-        <p>{{ conversation }}</p>
+            <label for="plaintiff_link">لینک یا نشانی مدرک (اختیاری)</label>
+            <input id="plaintiff_link" name="plaintiff_link" type="url" placeholder="https://...">
+
+            <button type="submit" class="btn">ارسال برای پرونده</button>
+          </form>
+        </div>
+
+        <div class="col card">
+          <h3>ورودی متشاکی</h3>
+          <form method="post" action="{{ url_for('submit_defendant') }}" class="stack">
+            <label for="defendant_text">توضیحات</label>
+            <textarea id="defendant_text" name="defendant_text" rows="4" placeholder="پاسخ یا توضیحات تکمیلی"></textarea>
+
+            <label for="defendant_link">لینک یا نشانی مدرک (اختیاری)</label>
+            <input id="defendant_link" name="defendant_link" type="url" placeholder="https://...">
+
+            <button type="submit" class="btn">ارسال برای پرونده</button>
+          </form>
+        </div>
       </div>
-    {% endif %}
+    </section>
 
-    {% if history %}
-      <div class="history">
-        <h2>🗂 تاریخچه گفتگو</h2>
-        <ul>
-          {% for msg in history %}
-            <li>{{ msg }}</li>
-          {% endfor %}
-        </ul>
+    <section class="history-section">
+      <h2>تاریخچه</h2>
+      <div class="columns two history-columns">
+        <div class="col history-col right-side">
+          <h3>شاکی</h3>
+          {% if case.plaintiff_submissions %}
+            {% for item in case.plaintiff_submissions %}
+              <div class="item-box">
+                <div class="meta">{{ item.ts }}</div>
+                <div class="text">{{ item.text or '—' }}</div>
+                {% if item.link %}
+                  <div class="link"><a href="{{ item.link }}" target="_blank" rel="noopener">مشاهده مدرک</a></div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty">هنوز ورودی ثبت نشده است.</div>
+          {% endif %}
+        </div>
+        <div class="col history-col left-side">
+          <h3>متشاکی</h3>
+          {% if case.defendant_submissions %}
+            {% for item in case.defendant_submissions %}
+              <div class="item-box">
+                <div class="meta">{{ item.ts }}</div>
+                <div class="text">{{ item.text or '—' }}</div>
+                {% if item.link %}
+                  <div class="link"><a href="{{ item.link }}" target="_blank" rel="noopener">مشاهده مدرک</a></div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty">هنوز ورودی ثبت نشده است.</div>
+          {% endif %}
+        </div>
       </div>
-    {% endif %}
+    </section>
+
+    <footer>
+      <small>نسخه آزمایشی — برای دیپلوی، کلید <code>ANTHROPIC_API_KEY</code> را در Render تنظیم کنید.</small>
+    </footer>
   </div>
 </body>
 </html>
-{% if history %}
-  <div style="margin-top: 20px; text-align: center;">
-    <a href="/" class="btn-back">🔄 شروع پرونده جدید</a>
-  </div>
-{% endif %}

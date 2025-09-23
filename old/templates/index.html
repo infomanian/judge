@@ -1,128 +1,51 @@
-<!-- templates/index.html -->
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html lang="fa">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>{{ app_title }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <meta charset="UTF-8">
+  <title>شبیه‌ساز قاضی</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <main class="container">
-    <header>
-      <h1>{{ app_title }}</h1>
-    </header>
+  <div class="container">
+    <h1>⚖️ شبیه‌ساز قاضی</h1>
+    <form method="POST" enctype="multipart/form-data">
+      <label for="role">نقش خود را انتخاب کنید:</label>
+      <select name="role" required>
+        <option value="شاکی">شاکی</option>
+        <option value="متشاکی">متشاکی</option>
+      </select>
 
-    {% if page == "home" %}
-      <section class="card">
-        <h2>پرونده جدید — (مرحلهٔ قاضی)</h2>
-        <form action="{{ url_for('create') }}" method="post" class="form">
-          <label>عنوان پرونده (اختیاری)
-            <input type="text" name="title" placeholder="مثلاً اختلاف قراردادی" />
-          </label>
-          <label>یادداشت‌های قاضی (اختیاری)
-            <textarea name="judge_notes" rows="3" placeholder="توضیحات یا سوالاتی که قاضی برای شروع دارد..."></textarea>
-          </label>
+      <label for="text">توضیحات:</label>
+      <textarea name="text" rows="4" required></textarea>
 
-          <fieldset>
-            <legend>اطلاعات اولیه خواهان</legend>
-            <label>نام خواهان
-              <input type="text" name="plaintiff_name" />
-            </label>
-            <label>توضیح اولیه خواهان
-              <textarea name="plaintiff_initial" rows="3"></textarea>
-            </label>
-          </fieldset>
+      <label for="files">آپلود مدارک (اختیاری):</label>
+      <input type="file" name="files" multiple>
 
-          <fieldset>
-            <legend>اطلاعات اولیه خوانده</legend>
-            <label>نام خوانده
-              <input type="text" name="defendant_name" />
-            </label>
-            <label>توضیح اولیه خوانده
-              <textarea name="defendant_initial" rows="3"></textarea>
-            </label>
-          </fieldset>
+      <button type="submit">ارسال</button>
+    </form>
 
-          <div class="actions"><button type="submit">ایجاد پرونده</button></div>
-        </form>
-      </section>
-
-      <section class="card">
-        <h2>پرونده‌های جاری</h2>
-        {% if cases %}
-          <ul>
-            {% for c in cases %}
-              <li>
-                <a href="{{ url_for('view_case', case_id=c.id) }}">{{ c.title }} — وضعیت: {{ c.status }}</a>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p>هنوز پرونده‌ای وجود ندارد.</p>
-        {% endif %}
-      </section>
-    {% elif page == "case" %}
-      <section class="card">
-        <h2>پرونده: {{ case.title }}</h2>
-        <p><b>وضعیت:</b> {{ case.status }}</p>
-        {% if case.verdict %}
-          <div class="card small">
-            <h3>رأی صادره</h3>
-            <pre class="mono">{{ case.verdict }}</pre>
-          </div>
-        {% endif %}
-        <h3>گفتگو و مدارک</h3>
-        <div class="conversation card">
-          {% for msg in case.conversation %}
-            <div class="msg {{ msg.from }}">
-              <b>{{ 'قاضی' if msg.from=='judge' else (case.plaintiff.name if msg.from=='plaintiff' else case.defendant.name) }}:</b>
-              <div class="text">{{ msg.text }}</div>
-            </div>
-          {% endfor %}
-        </div>
-
-        <div class="card">
-          <h3>اقدامات قاضی</h3>
-          <form action="{{ url_for('request_info', case_id=case.id) }}" method="post">
-            <label>درخواست اطلاعات از:
-              <select name="who">
-                <option value="plaintiff">خواهان</option>
-                <option value="defendant">خوانده</option>
-              </select>
-            </label>
-            <label>متن درخواست (مثلاً: مدارک پرداخت، تاریخچه قرارداد...):
-              <textarea name="note" rows="3"></textarea>
-            </label>
-            <div class="actions"><button type="submit">درخواست اطلاعات</button></div>
-          </form>
-
-          {% if case.awaiting %}
-            <p class="muted">در انتظار پاسخ از: <b>{{ 'خواهان' if case.awaiting=='plaintiff' else 'خوانده' }}</b></p>
-          {% endif %}
-
-          <form action="{{ url_for('issue_verdict', case_id=case.id) }}" method="post" onsubmit="return confirm('آیا مطمئن هستید می‌خواهید رأی صادر شود؟ این کار پرونده را می‌بندد.');">
-            <div class="actions"><button type="submit" class="danger">صدور رأی و بستن پرونده</button></div>
-          </form>
-        </div>
-      </section>
-
-    {% elif page == "respond" %}
-      <section class="card">
-        <h2>پاسخ‌دهی — {{ 'خواهان' if party=='plaintiff' else 'خوانده' }}</h2>
-        {% if error %}<p class="error">{{ error }}</p>{% endif %}
-        <form action="{{ url_for('respond', case_id=case.id, party=party) }}" method="post">
-          <label>متن پاسخ:
-            <textarea name="response_text" rows="6" required></textarea>
-          </label>
-          <div class="actions"><button type="submit">ارسال پاسخ</button></div>
-        </form>
-      </section>
+    {% if conversation %}
+      <div class="response">
+        <h2>📜 نتیجه قاضی:</h2>
+        <p>{{ conversation }}</p>
+      </div>
     {% endif %}
 
-    <footer class="footer">
-      <small>این سامانه شبیه‌سازی‌ست و برای مصارف آموزشی طراحی شده است. رأی‌های تولیدشده باید توسط افراد حقیقی بازبینی شوند.</small>
-    </footer>
-  </main>
+    {% if history %}
+      <div class="history">
+        <h2>🗂 تاریخچه گفتگو</h2>
+        <ul>
+          {% for msg in history %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
 </body>
 </html>
+{% if history %}
+  <div style="margin-top: 20px; text-align: center;">
+    <a href="/" class="btn-back">🔄 شروع پرونده جدید</a>
+  </div>
+{% endif %}
