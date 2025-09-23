@@ -7,73 +7,47 @@ body {
 }
 
 .container {
-  max-width: 1200px;
-  margin: auto;
+  max-width: 800px;
+  margin: 20px auto;
+  background: #fff;
   padding: 20px;
-  font-family: Tahoma, sans-serif;
-  direction: rtl;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-form label {
-  display: block;
-  margin-top: 15px;
-  font-weight: bold;
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 textarea {
-  width: 100%;
   resize: vertical;
 }
 
 button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: #0077cc;
-  color: #fff;
+  padding: 10px;
+  background: #4CAF50;
+  color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #005fa3;
+  background: #45a049;
 }
 
-.response {
-  background-color: #f0f0f0;
+.response, .history {
+  margin-top: 20px;
   padding: 15px;
-  margin-top: 20px;
+  background: #f0f0f0;
   border-radius: 8px;
-}
-
-.history-container {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.history-column {
-  width: 48%;
-}
-
-.history-column h3 {
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.history-box {
-  background-color: #e0e0e0;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-}
-
-.history-column.right .history-box {
-  background-color: #d1ffd1; /* شاکی سبز */
-}
-
-.history-column.left .history-box {
-  background-color: #ffd1d1; /* متشاکی قرمز */
 }
 
 .btn-back {
