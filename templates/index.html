@@ -10,6 +10,7 @@
 <body>
   <div class="container">
     <h1>⚖️ شبیه‌ساز قاضی</h1>
+
     <form method="POST" enctype="multipart/form-data">
       <label for="role">نقش خود را انتخاب کنید:</label>
       <select name="role" required>
@@ -27,29 +28,37 @@
     </form>
 
     {% if conversation %}
-    <div class="response">
+    <div class="response judge-box">
       <h2>📜 نتیجه قاضی:</h2>
       <p>{{ conversation }}</p>
     </div>
     {% endif %}
 
     {% if history %}
-    <div class="history">
-      <h2>🗂 تاریخچه گفتگو</h2>
-      <ul>
-        {% for msg in history %}
-        <li>{{ msg }}</li>
+    <div class="history-grid">
+      <!-- بخش شاکی -->
+      <div class="party-column">
+        <h2>👤 شاکی</h2>
+        {% for msg in history if msg.startswith("شاکی") %}
+        <div class="msg-box claimant">{{ msg }}</div>
         {% endfor %}
-      </ul>
+      </div>
+
+      <!-- بخش متشاکی -->
+      <div class="party-column">
+        <h2>👤 متشاکی</h2>
+        {% for msg in history if msg.startswith("متشاکی") %}
+        <div class="msg-box defendant">{{ msg }}</div>
+        {% endfor %}
+      </div>
     </div>
     {% endif %}
-  </div>
-  {% if history %}
+
+    {% if history %}
     <div style="margin-top: 20px; text-align: center;">
       <a href="/?new_case=1" class="btn-back">🔄 شروع پرونده جدید</a>
     </div>
-  {% endif %}
-
+    {% endif %}
+  </div>
 </body>
-
 </html>

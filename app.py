@@ -45,7 +45,8 @@ def index():
         files = request.files.getlist("files")
         user_input = build_prompt(role, text, files)
 
-        session["conversation_history"].append(user_input)
+        session["conversation_history"].append(f"{role}: {text}")
+
         prompt = "\n\n".join(session["conversation_history"])
         resp = client.messages.create(
             model=ANTHROPIC_MODEL,
