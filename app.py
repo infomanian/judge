@@ -1,6 +1,6 @@
 import os
 import base64
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, redirect, url_for
 from anthropic import Anthropic
 
 app = Flask(__name__)
@@ -9,24 +9,47 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 # ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-1-20250805") 
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
 client = Anthropic(api_key=ANTHROPIC_API_KEY)
-app.secret_key = os.getenv("SESSION_SECRET", "amir")
-conversation_history = []
 
-def build_prompt(role, text, files):
-    file_descriptions = []
+app.secret_key = os.getenv("SESSION_SECRET", "amir")
+
+
+def build_user_content(role, text, files):
+    """
+    آماده‌سازی پیام کاربر شامل متن و فایل‌ها
+    """
+    content_blocks = [{"type": "text", "text": f"{role}: {text}"}]
+
     for f in files:
         if f and f.filename:
-            content = f.read()
+            file_bytes = f.read()
+            f.seek(0)  # ریست کردن بعد از read
+
             mime = f.mimetype or "application/octet-stream"
             if mime.startswith("image/"):
-                file_descriptions.append(f"[تصویر آپلود شد: {f.filename}]")
+                # تصویر به صورت بلاک واقعی
+                content_blocks.append({
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": mime,
+                        "data": base64.b64encode(file_bytes).decode("utf-8")
+                    }
+                })
             else:
+                # فایل متنی یا باینری
                 try:
-                    decoded = content.decode("utf-8")
-                    file_descriptions.append(f"[فایل متنی {f.filename}: {decoded[:500]}...]")
+                    decoded = file_bytes.decode("utf-8")
+                    content_blocks.append({
+                        "type": "text",
+                        "text": f"[فایل متنی {f.filename}]: {decoded[:500]}..."
+                    })
                 except:
-                    file_descriptions.append(f"[فایل باینری {f.filename}]")
-    return f"👤 {role}: {text}\nمدارک: {'; '.join(file_descriptions) if file_descriptions else 'بدون مدرک'}"
+                    content_blocks.append({
+                        "type": "text",
+                        "text": f"[فایل باینری {f.filename}]"
+                    })
+    return content_blocks
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -35,35 +58,46 @@ def index():
 
     response_text = None
 
-    # پاک کردن تاریخچه وقتی کاربر کیس جدید میخواد
+    # شروع پرونده جدید
     if request.method == "GET" and request.args.get("new_case") == "1":
         session["conversation_history"] = []
+        return redirect(url_for("index"))
 
     if request.method == "POST":
         role = request.form.get("role")
         text = request.form.get("text")
         files = request.files.getlist("files")
-        user_input = build_prompt(role, text, files)
 
-        if "conversation_history" not in session:
-            session["conversation_history"] = []
+        # آماده‌سازی ورودی
+        user_content = build_user_content(role, text, files)
 
-        session["conversation_history"].append(f"{role}: {text}")
+        # افزودن پیام کاربر به تاریخچه
+        history = session.get("conversation_history", [])
+        history.append({"role": "user", "content": user_content})
+        session["conversation_history"] = history
 
-        prompt = "\n\n".join(session["conversation_history"])
+        # ساختن لیست پیام‌ها
         resp = client.messages.create(
             model=ANTHROPIC_MODEL,
             max_tokens=800,
-            messages=[{"role": "user", "content": prompt}]
+            messages=history
         )
-        response_text = resp.content[0].text
-        session["conversation_history"].append(f"🤖 قاضی: {response_text}")
+
+        # جمع کردن تمام بلاک‌های متنی
+        response_text = "".join(
+            block.text for block in resp.content if block.type == "text"
+        )
+
+        # افزودن پاسخ قاضی
+        history.append({"role": "assistant", "content": [{"type": "text", "text": response_text}]})
+        session["conversation_history"] = history
 
     return render_template(
         "index.html",
         conversation=response_text,
         history=session.get("conversation_history", [])
     )
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
