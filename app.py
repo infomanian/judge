@@ -45,6 +45,9 @@ def index():
         files = request.files.getlist("files")
         user_input = build_prompt(role, text, files)
 
+        if "conversation_history" not in session:
+            session["conversation_history"] = []
+
         session["conversation_history"].append(f"{role}: {text}")
 
         prompt = "\n\n".join(session["conversation_history"])
