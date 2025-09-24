@@ -129,11 +129,6 @@ def call_claude_for_judge(case: dict) -> dict:
     )
 
     try:
-        print(f"API Key present: {bool(api_key)}")
-        print(f"Model: {os.getenv('ANTHROPIC_MODEL', 'claude-sonnet-4-20250514')}")
-        print(f"User prompt length: {len(user_prompt)}")
-        print(f"System prompt length: {len(system_prompt)}")
-        
         msg = client.messages.create(
             # model = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-1-20250805"),
             model = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
@@ -147,9 +142,6 @@ def call_claude_for_judge(case: dict) -> dict:
             if block.type == "text":
                 text_parts.append(block.text)
         output = "".join(text_parts).strip()
-        
-        print(f"Raw AI response: {output}")
-        print(f"Response length: {len(output)}")
 
         data = json.loads(output)
         if not isinstance(data, dict) or "action" not in data:
@@ -163,29 +155,11 @@ def call_claude_for_judge(case: dict) -> dict:
         else:
             raise ValueError("Unknown action")
         return data
-    except json.JSONDecodeError as e:
-        print(f"JSON Parse Error: {e}")
-        print(f"Raw output: {output}")
+    except Exception:
         return {
             "action": "request",
             "target": "plaintiff",
-            "message": f"خطا در پردازش پاسخ قاضی (JSON): {str(e)}",
-        }
-    except ValueError as e:
-        print(f"Validation Error: {e}")
-        print(f"Raw output: {output}")
-        return {
-            "action": "request",
-            "target": "plaintiff",
-            "message": f"خطا در اعتبارسنجی پاسخ قاضی: {str(e)}",
-        }
-    except Exception as e:
-        print(f"Error: {type(e).__name__}: {e}")
-        print(f"Raw output: {output if 'output' in locals() else 'No output available'}")
-        return {
-            "action": "request",
-            "target": "plaintiff",
-            "message": f"خطا در سیستم قاضی: {type(e).__name__}: {str(e)}",
+            "message": "سیستم قاضی موقتاً در دسترس نیست. لطفاً توضیحات بیشتری ارائه کنید.",
         }
 
 @app.route("/")
