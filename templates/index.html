@@ -43,12 +43,16 @@
       <div class="columns two">
         <div class="col card">
           <h3>ورودی شاکی</h3>
-          <form method="post" action="{{ url_for('submit_plaintiff') }}" class="stack">
+          <form method="post" action="{{ url_for('submit_plaintiff') }}" enctype="multipart/form-data" class="stack">
             <label for="plaintiff_text">توضیحات</label>
             <textarea id="plaintiff_text" name="plaintiff_text" rows="4" placeholder="شرح ادعا یا توضیحات تکمیلی"></textarea>
 
             <label for="plaintiff_link">لینک یا نشانی مدرک (اختیاری)</label>
             <input id="plaintiff_link" name="plaintiff_link" type="url" placeholder="https://...">
+
+            <label for="plaintiff_file">فایل ضمیمه (اختیاری)</label>
+            <input id="plaintiff_file" name="plaintiff_file" type="file" accept=".txt,.pdf,.doc,.docx">
+            <small>فرمت‌های مجاز: TXT, PDF, DOC, DOCX (حداکثر 16 مگابایت)</small>
 
             <button type="submit" class="btn">ارسال برای پرونده</button>
           </form>
@@ -56,12 +60,16 @@
 
         <div class="col card">
           <h3>ورودی متشاکی</h3>
-          <form method="post" action="{{ url_for('submit_defendant') }}" class="stack">
+          <form method="post" action="{{ url_for('submit_defendant') }}" enctype="multipart/form-data" class="stack">
             <label for="defendant_text">توضیحات</label>
             <textarea id="defendant_text" name="defendant_text" rows="4" placeholder="پاسخ یا توضیحات تکمیلی"></textarea>
 
             <label for="defendant_link">لینک یا نشانی مدرک (اختیاری)</label>
             <input id="defendant_link" name="defendant_link" type="url" placeholder="https://...">
+
+            <label for="defendant_file">فایل ضمیمه (اختیاری)</label>
+            <input id="defendant_file" name="defendant_file" type="file" accept=".txt,.pdf,.doc,.docx">
+            <small>فرمت‌های مجاز: TXT, PDF, DOC, DOCX (حداکثر 16 مگابایت)</small>
 
             <button type="submit" class="btn">ارسال برای پرونده</button>
           </form>
@@ -82,6 +90,17 @@
                 {% if item.link %}
                   <div class="link"><a href="{{ item.link }}" target="_blank" rel="noopener">مشاهده مدرک</a></div>
                 {% endif %}
+                {% if item.file %}
+                  <div class="file-info">
+                    <strong>فایل ضمیمه:</strong> {{ item.file.filename }}
+                    <div class="file-content">
+                      <details>
+                        <summary>مشاهده محتوای فایل</summary>
+                        <pre>{{ item.file.content[:500] }}{% if item.file.content|length > 500 %}...{% endif %}</pre>
+                      </details>
+                    </div>
+                  </div>
+                {% endif %}
               </div>
             {% endfor %}
           {% else %}
@@ -97,6 +116,17 @@
                 <div class="text">{{ item.text or '—' }}</div>
                 {% if item.link %}
                   <div class="link"><a href="{{ item.link }}" target="_blank" rel="noopener">مشاهده مدرک</a></div>
+                {% endif %}
+                {% if item.file %}
+                  <div class="file-info">
+                    <strong>فایل ضمیمه:</strong> {{ item.file.filename }}
+                    <div class="file-content">
+                      <details>
+                        <summary>مشاهده محتوای فایل</summary>
+                        <pre>{{ item.file.content[:500] }}{% if item.file.content|length > 500 %}...{% endif %}</pre>
+                      </details>
+                    </div>
+                  </div>
                 {% endif %}
               </div>
             {% endfor %}

@@ -73,13 +73,34 @@ h1 { margin: 0; font-size: 28px; }
 
 .stack { display: grid; gap: 8px; }
 
-textarea, input[type="url"] {
+textarea, input[type="url"], input[type="file"] {
   width: 100%;
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--panel-2);
   color: var(--text);
+}
+
+input[type="file"] {
+  cursor: pointer;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+small {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
 }
 
 label { font-size: 14px; color: var(--muted); }
@@ -114,6 +135,40 @@ label { font-size: 14px; color: var(--muted); }
 .item-box .text { white-space: pre-wrap; }
 .item-box .link a { color: var(--accent); text-decoration: none; }
 .item-box .link a:hover { text-decoration: underline; }
+
+.file-info {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(34, 211, 238, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(34, 211, 238, 0.2);
+}
+
+.file-content {
+  margin-top: 6px;
+}
+
+.file-content details {
+  cursor: pointer;
+}
+
+.file-content summary {
+  color: var(--accent);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.file-content pre {
+  background: var(--panel-2);
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+}
 
 footer { margin-top: 32px; text-align: center; color: var(--muted); }
 
