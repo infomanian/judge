@@ -19,7 +19,7 @@
       <textarea name="text" rows="4" required></textarea>
 
       <label for="files">آپلود مدارک (اختیاری):</label>
-      <input type="file" name="files" multiple>
+      <input type="file" name="files" id="files" multiple accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,application/json">
 
       <button type="submit">ارسال</button>
     </form>
@@ -44,8 +44,3 @@
   </div>
 </body>
 </html>
-{% if history %}
-  <div style="margin-top: 20px; text-align: center;">
-    <a href="/" class="btn-back">🔄 شروع پرونده جدید</a>
-  </div>
-{% endif %}
