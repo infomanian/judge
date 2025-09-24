@@ -134,19 +134,14 @@ def call_claude_for_judge(case: dict) -> dict:
         print(f"User prompt length: {len(user_prompt)}")
         print(f"System prompt length: {len(system_prompt)}")
         
-        msg = client.messages.create(
+        msg = client.completions.create(
             # model = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-1-20250805"),
             model = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
-            max_tokens=400,
+            max_tokens_to_sample=400,
             temperature=0,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}],
+            prompt=f"{system_prompt}\n\nHuman: {user_prompt}\n\nAssistant:",
         )
-        text_parts = []
-        for block in msg.content:
-            if block.type == "text":
-                text_parts.append(block.text)
-        output = "".join(text_parts).strip()
+        output = msg.completion.strip()
         
         print(f"Raw AI response: {output}")
         print(f"Response length: {len(output)}")
