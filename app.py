@@ -130,7 +130,8 @@ def call_claude_for_judge(case: dict) -> dict:
 
     try:
         msg = client.messages.create(
-            model=os.environ.get("ANTHROPIC_MODEL", "claude-3-5-sonnet-latest"),
+            # model = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-1-20250805"),
+            model = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
             max_tokens=400,
             temperature=0,
             system=system_prompt,
