@@ -130,13 +130,13 @@ def call_claude_for_judge(case: dict) -> dict:
 
     try:
         print(f"API Key present: {bool(api_key)}")
-        print(f"Model: {os.getenv('ANTHROPIC_MODEL', 'claude-3-sonnet-20240229')}")
+        print(f"Model: {os.getenv('ANTHROPIC_MODEL', 'claude-sonnet-4-20250514')}")
         print(f"User prompt length: {len(user_prompt)}")
         print(f"System prompt length: {len(system_prompt)}")
         
         msg = client.completions.create(
             # model = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-1-20250805"),
-            model = os.getenv("ANTHROPIC_MODEL", "claude-3-sonnet-20240229"),
+            model = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
             max_tokens_to_sample=400,
             temperature=0,
             prompt=f"{system_prompt}\n\nHuman: {user_prompt}\n\nAssistant:",
