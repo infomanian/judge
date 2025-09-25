@@ -128,39 +128,39 @@ def call_claude_for_judge(case: dict) -> dict:
         "اگر کافی است، رای نهایی کوتاه و صریح بده."
     )
 
-    try:
-        msg = client.messages.create(
-            # ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-1-20250805") 
-            model = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
-            max_tokens=400,
-            temperature=0,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}],
-        )
-        text_parts = []
-        for block in msg.content:
-            if block.type == "text":
-                text_parts.append(block.text)
-        output = "".join(text_parts).strip()
+    #try:
+    msg = client.messages.create(
+        # ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-1-20250805") 
+        model = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
+        max_tokens=400,
+        temperature=0,
+        system=system_prompt,
+        messages=[{"role": "user", "content": user_prompt}],
+    )
+    text_parts = []
+    for block in msg.content:
+        if block.type == "text":
+            text_parts.append(block.text)
+    output = "".join(text_parts).strip()
 
-        data = json.loads(output)
-        if not isinstance(data, dict) or "action" not in data:
-            raise ValueError("Invalid schema")
-        if data["action"] == "request":
-            if data.get("target") not in ("plaintiff", "defendant") or not data.get("message"):
-                raise ValueError("Invalid request schema")
-        elif data["action"] == "verdict":
-            if not data.get("verdict"):
-                raise ValueError("Invalid verdict schema")
-        else:
-            raise ValueError("Unknown action")
-        return data
-    except Exception:
-        return {
-            "action": "request",
-            "target": "plaintiff",
-            "message": "سیستم قاضی موقتاً در دسترس نیست. لطفاً توضیحات بیشتری ارائه کنید.",
-        }
+    data = json.loads(output)
+    if not isinstance(data, dict) or "action" not in data:
+        raise ValueError("Invalid schema")
+    if data["action"] == "request":
+        if data.get("target") not in ("plaintiff", "defendant") or not data.get("message"):
+            raise ValueError("Invalid request schema")
+    elif data["action"] == "verdict":
+        if not data.get("verdict"):
+            raise ValueError("Invalid verdict schema")
+    else:
+        raise ValueError("Unknown action")
+    return data
+    #except Exception:
+    #    return {
+    #        "action": "request",
+    #        "target": "plaintiff",
+    #        "message": "سیستم قاضی موقتاً در دسترس نیست. لطفاً توضیحات بیشتری ارائه کنید.",
+    #    }
 
 @app.route("/")
 def index():
